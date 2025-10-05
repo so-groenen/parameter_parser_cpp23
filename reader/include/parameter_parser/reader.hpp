@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <istream>
+#include <ostream>
 #include <fstream>
 #include <unordered_map>
 #include <ranges>
@@ -11,10 +12,14 @@
 #include <vector>
 #include <string_view>
 #include <expected>
+
+#include "reader_error.hpp"
 #include "parameter_parser/utilities.hpp"
 
 using str_v = std::string_view;
 using ParameterMap = std::unordered_map<std::string, std::string>;
+
+
 
 namespace parameter_parser::reader
 {
@@ -25,9 +30,9 @@ namespace parameter_parser::reader
     using namespace std::string_view_literals;
 
 
-    auto exit_if_err(std::string&& error) -> std::string 
+    auto exit_if_err(ReaderError&& error) -> ReaderError 
     {
-        std::println(">> Exiting with ParameterReaderError: {}", error);
+        std::println("{}", error);
         exit(EXIT_FAILURE);
         return error;
     }
@@ -47,13 +52,8 @@ namespace parameter_parser::reader
             Permissive
         };
     private:
-        static auto build_from_ifstream(std::ifstream& parameter_file, str_v delimiter, Mode mode = Strict) -> std::expected<ParameterReader, std::string>
+        static auto build_from_ifstream(std::ifstream& parameter_file, str_v delimiter, Mode mode = Strict) -> std::expected<ParameterReader, ReaderError>
         {
-            if (!parameter_file.is_open())
-            {
-                return std::unexpected(">> ParameterError::FileError Could not open file\n");  
-            }
-
             std::unordered_map<std::string, std::string> parameter_map{};
             std::string buffer{};
             while (std::getline(parameter_file, buffer))
@@ -61,7 +61,9 @@ namespace parameter_parser::reader
                 auto key_val = split_once(buffer, delimiter);
                 if (!key_val.has_value() && mode == Strict)
                 {
-                    return std::unexpected(std::format(">> ParameterError::ParsingFail at line \"{}\"", buffer));
+                    ReaderError error{.args = buffer, .from = ReaderError::From::build, .kind = ReaderError::Kind::ParseError};
+                    return std::unexpected(error);
+                    // return std::unexpected(std::format(">> ParameterError::ParsingFail at line \"{}\"", buffer));
                 }
                 else if (key_val.has_value())
                 {
@@ -73,61 +75,83 @@ namespace parameter_parser::reader
         }
 
     public:
-        static auto build(const char* file_path, str_v delimiter, Mode mode = Strict) -> std::expected<ParameterReader, std::string>
+        static auto build(const char* file_path, str_v delimiter, Mode mode = Strict) -> std::expected<ParameterReader, ReaderError>
         {
             std::ifstream parameter_file{file_path};
+            if (!parameter_file.is_open())
+            {
+                ReaderError error{.args = file_path, .from = ReaderError::From::build, .kind = ReaderError::Kind::FileError};
+                return std::unexpected(error);
+                // return std::unexpected(">> ParameterError::FileError Could not open file\n");  
+            }
+
             return build_from_ifstream(parameter_file,delimiter, mode);
         }
-        static auto build(const std::string& file_path, str_v delimiter, Mode mode = Strict) -> std::expected<ParameterReader, std::string>
+        static auto build(const std::string& file_path, str_v delimiter, Mode mode = Strict) -> std::expected<ParameterReader, ReaderError>
         {
             std::ifstream parameter_file{file_path};
+            if (!parameter_file.is_open())
+            {
+                ReaderError error{.args = file_path, .from = ReaderError::From::build, .kind = ReaderError::Kind::FileError};
+                return std::unexpected(error);
+                // return std::unexpected(">> ParameterError::FileError Could not open file\n");  
+            }
             return build_from_ifstream(parameter_file,delimiter, mode);
         }
 
 
         template<typename T>
-        auto try_parse_num(str_v key) -> std::expected<T, std::string>
+        auto try_parse_num(str_v key) -> std::expected<T, ReaderError>
             requires std::is_integral_v<T> || std::is_floating_point_v<T>
         {
             m_buffer = key;
             if (!m_map.contains(m_buffer))
             {
-                return std::unexpected(std::format(">> try_parse_num::Error: Could not find key \"{}\"", m_buffer));
+                ReaderError error{.args = m_buffer, .from = ReaderError::From::try_parse_num, .kind = ReaderError::Kind::KeyError};
+                return std::unexpected(error);
+                // return std::unexpected(std::format(">> try_parse_num::Error: Could not find key \"{}\"", m_buffer));
             }
             const auto& value = m_map.at(m_buffer);
             auto result       = parse_num_handled<T>(value);
             if(!result)
             {
-                return std::unexpected(std::format(">> try_parse_num::Error: Could not parse \"{}\"", result.error()));
+                ReaderError error{.args = std::string{result.error()}, .from = ReaderError::From::try_parse_num, .kind = ReaderError::Kind::ParseError};
+                return std::unexpected(error);
+                // return std::unexpected(std::format(">> try_parse_num::Error: Could not parse \"{}\"", result.error()));
             }
 
             return result.value();
         }
 
         template<typename T>
-        auto try_parse_vector(str_v key, str_v delim) -> std::expected<std::vector<T>, std::string>
+        auto try_parse_vector(str_v key, str_v delim) -> std::expected<std::vector<T>, ReaderError>
             requires std::is_integral_v<T> || std::is_floating_point_v<T>
         {
             m_buffer = key;
             if (!m_map.contains(m_buffer))
             {
-                return std::unexpected(std::format(">> try_parse_vec::Error Could not find key \"{}\"", m_buffer));
+                ReaderError error{.args = m_buffer, .from = ReaderError::From::try_parse_vec, .kind = ReaderError::Kind::KeyError};
+                return std::unexpected(error);
+                // return std::unexpected(std::format(">> try_parse_vec::Error Could not find key \"{}\"", m_buffer));
             }
             const auto& value = m_map.at(m_buffer);
             auto result       = try_parse_vec<T>(value, delim).transform_error([](std::string error)
             {
-                auto new_error = std::format(">> try_parse_vec::Error Could not parse following tokens: \"{}\"", error);
-                return new_error;
+                ReaderError read_error{.args = error, .from = ReaderError::From::try_parse_vec, .kind = ReaderError::Kind::ParseError};
+                // auto new_error = std::format(">> try_parse_vec::Error Could not parse following tokens: \"{}\"", error);
+                return read_error;
             });
             return result;
         }
 
-        auto try_get_str(str_v key) -> std::expected<std::string, std::string>
+        auto try_get_str(str_v key) -> std::expected<std::string, ReaderError>
         {
             m_buffer = key;
             if (!m_map.contains(m_buffer))
             {
-                return std::unexpected(std::format(">> try_parse_str::Error: Could not find key \"{}\"", m_buffer));
+                ReaderError error{.args = m_buffer, .from = ReaderError::From::try_parse_str, .kind = ReaderError::Kind::KeyError};
+                return std::unexpected(error);
+                // return std::unexpected(std::format(">> try_parse_str::Error: Could not find key \"{}\"", m_buffer));
             }
             return m_map.at(m_buffer);
         }

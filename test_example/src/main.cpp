@@ -1,6 +1,8 @@
 #include <iostream>
 #include <print>
 #include "parameter_parser/reader.hpp"
+#include "parameter_parser/reader_error.hpp"
+
 #include <assert.h>
 #include "print_results.hpp"
 using namespace std::string_view_literals;
