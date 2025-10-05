@@ -26,6 +26,5 @@ add_custom_command(
                 ${CMAKE_CURRENT_SOURCE_DIR}/parameters.txt
                 ${CMAKE_CURRENT_BINARY_DIR}/parameters.txt)
 
-
 include(GoogleTest)
 gtest_discover_tests(parameter_parser_tests)

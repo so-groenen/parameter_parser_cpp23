@@ -14,6 +14,7 @@ endif()
 if(ENABLE_TESTING)
     message(STATUS "Building google tests")
 	add_subdirectory(tests)
+    include(CTest)
 endif()
 
 include(GNUInstallDirs)
