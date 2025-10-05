@@ -1,0 +1,3 @@
+foreach(component ${parameter_parser_FIND_COMPONENTS})
+    include(${CMAKE_CURRENT_LIST_DIR}/parameter_parser-${component}-config.cmake)
+endforeach()
