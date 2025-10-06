@@ -19,7 +19,7 @@ Consider the following `parameters.txt`:
 good_vector => 1.0,   1.1,  1.2, 1.3, 1.4,     1.5,  1.6, 1.7,  1.8, 1.9
 bad_vector  => 1.0, 1.1, 1.2, XXX, 1.4, YYY, 1.6,  ?!+, 1.8, 1.9
 my_str      => hello world
-my_double   => 3.141
+my_double   => 3.14159265359
 my_bad_float => meow
 ```
 where list of numbers can be polluted, have uneven spaces etc...

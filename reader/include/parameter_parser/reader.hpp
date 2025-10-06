@@ -36,7 +36,7 @@ namespace parameter_parser::reader
     };
     auto exit_if_err(ReaderError&& error) -> ReaderError 
     {
-        std::println("{}", error);
+        std::cerr << "Exiting with ReaderError: " << error;
         exit(EXIT_FAILURE);
         return error;
     }
@@ -126,7 +126,13 @@ namespace parameter_parser::reader
 
             return result.value();
         }
+template<typename T>
+        auto parse_num_or_exit(str_v key) -> T
+            requires std::is_integral_v<T> || std::is_floating_point_v<T>
+        {
+            return try_parse_num<T>(key).transform_error(exit_if_err).value();
 
+        }
         template<typename T>
         auto try_parse_vector(str_v key, str_v delim) -> std::expected<std::vector<T>, ReaderError>
             requires std::is_integral_v<T> || std::is_floating_point_v<T>
@@ -147,7 +153,12 @@ namespace parameter_parser::reader
             });
             return result;
         }
-
+        template<typename T>
+        auto parse_vector_or_exit(str_v key, str_v delim) -> std::vector<T>
+            requires std::is_integral_v<T> || std::is_floating_point_v<T>
+        {
+            return try_parse_vector<T>(key, delim).transform_error(exit_if_err).value();
+        }
         auto try_get_str(str_v key) -> std::expected<std::string, ReaderError>
         {
             m_buffer = key;
@@ -158,6 +169,10 @@ namespace parameter_parser::reader
                 // return std::unexpected(std::format(">> try_parse_str::Error: Could not find key \"{}\"", m_buffer));
             }
             return m_map.at(m_buffer);
+        }
+        auto get_str_or_exit(str_v key) -> std::string
+        {
+            return try_get_str(key).transform_error(exit_if_err).value();
         }
     };
 }

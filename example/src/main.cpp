@@ -27,17 +27,23 @@ int main(int argc, const char* argv [])
     }
     assert(reader.has_value());
     std::println("-> assertions passed");
-
     auto parameters      = reader.value();
+
+    // Parse without error check, will call exit(EXIT_FAILURE) upon error:
+    int32_t my_int           = parameters.parse_num_or_exit<int32_t>("my_int");
+    std::vector int64_vector = parameters.parse_vector_or_exit<int64_t>("int64_vector", "and");
+    std::string hello_world  = parameters.get_str_or_exit("my_str");
+
+    // Also using std::expected & error handling:
     auto good_vec_res    = parameters.try_parse_vector<float>("good_vector", ",");
     auto bad_vec_res     = parameters.try_parse_vector<float>("bad_vector", ",");
     auto not_exist_res   = parameters.try_parse_vector<float>("non-existing vector", ",");
     auto my_double_res   = parameters.try_parse_num<double>("my_double");
-    auto my_int_res      = parameters.try_parse_num<int>("my_int");
     auto none_float      = parameters.try_parse_num<float>("non-existing float");
     auto my_bad_float    = parameters.try_parse_num<float>("my_bad_float");
-    auto hello_world_res = parameters.try_get_str("my_str");
     auto none_str        = parameters.try_get_str("non-existing str");
+    
+
 
     std::println("*** Parsing vecs:");
         assert(good_vec_res.has_value());
@@ -53,11 +59,8 @@ int main(int argc, const char* argv [])
 
     std::println("*** Parsing nums:");
         assert(my_double_res.has_value());
-        assert(my_double_res.value() == 3.141);
-        assert(my_int_res.has_value());
-        assert(my_int_res.value() == 42);
+        assert(my_double_res.value() == 3.14159265359);
         print_result(my_double_res);
-        print_result(my_int_res);
 
     std::println("Expected errors:");
         assert(!none_float.has_value());
@@ -66,10 +69,7 @@ int main(int argc, const char* argv [])
         print_result(my_bad_float);
 
     std::println("*** Parsing strings:");
-        assert(hello_world_res.has_value());
         assert(!none_str.has_value());
-        assert(hello_world_res.value() == "hello world");
-        print_result(hello_world_res);
 
     std::println("Expected errors:");
         print_result(none_str);

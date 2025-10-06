@@ -114,10 +114,23 @@ TEST_F(ReaderTest, ParsingVectorsErrorsHandled)
     EXPECT_EQ(not_exist_res.error().from, ReaderError::From::try_parse_vec);
 }
 
+TEST_F(ReaderTest, ParsingVectorsExitHandled) 
+{
+    // std::string s1  = "Exiting with ReaderError: from: .*, kind: .*, args: .*";
+    // const auto& s1_ = s1;
+    EXPECT_DEATH(reader->parse_vector_or_exit<float>("non-existing vector", ","),
+                "Exiting with ReaderError: from: .*, kind: .*, args: .*");
+
+    // std::string s2  = "Exiting with ReaderError: from: \"try_parse_vec\", kind: \"ParseError\", args: \"bad_vector\"";
+    // const auto& s2_ = s2;
+    EXPECT_DEATH(reader->parse_vector_or_exit<float>("bad_vector", ","),
+                "Exiting with ReaderError: from: .*, kind: .*, args: .*");
+}
+
 TEST_F(ReaderTest, ParsingNums) 
 {
     EXPECT_TRUE(my_double_res.has_value());
-    EXPECT_EQ(my_double_res.value(), 3.141);
+    EXPECT_EQ(my_double_res.value(), 3.14159265359);
 
     EXPECT_TRUE(my_int_res.has_value());
     EXPECT_EQ(my_int_res.value(), 42);
@@ -137,6 +150,16 @@ TEST_F(ReaderTest, ParsingNumsErrorsHandled)
     EXPECT_EQ(my_bad_float.error().args, "meow");
 }
 
+TEST_F(ReaderTest, ParsingNumsExitHandled) 
+{  
+
+    EXPECT_DEATH(reader->parse_num_or_exit<float>("non-existing float"),
+                "Exiting with ReaderError: from: .*, kind: .*, args: .*");
+
+    EXPECT_DEATH(reader->parse_num_or_exit<float>("my_bad_float"),
+                "Exiting with ReaderError: from: .*, kind: .*, args: .*");
+}
+
 TEST_F(ReaderTest, StringTests) 
 {
     EXPECT_TRUE(hello_world_res.has_value());
@@ -151,4 +174,9 @@ TEST_F(ReaderTest, StringTestsErrorHandled)
     EXPECT_EQ(none_str.error().kind, ReaderError::Kind::KeyError);
     EXPECT_EQ(none_str.error().args, "non-existing str");
 }
- 
+
+TEST_F(ReaderTest, StringExitHandled) 
+{  
+    EXPECT_DEATH(reader->get_str_or_exit("non-existing str"),
+                "Exiting with ReaderError: from: .*, kind: .*, args: .*");
+}
