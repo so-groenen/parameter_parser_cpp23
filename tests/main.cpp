@@ -72,7 +72,7 @@ protected:
     {
         if (reader_result)
         {
-            reader          = std::make_unique<reader::ParameterReader>(reader_result.value());
+            reader          = std::make_unique<reader::ParameterReader>(std::move(reader_result.value()));
 
             good_vec_res    = reader->try_parse_vector<float>("good_vector", ",");
             bad_vec_res     = reader->try_parse_vector<float>("bad_vector", ",");

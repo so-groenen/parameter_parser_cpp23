@@ -47,12 +47,12 @@ int main(int argc, const char* argv [])
     auto bad_float_res   = parameters.try_parse_num<float>("my_bad_float");
     auto hello_world_res = parameters.try_get_str("my_str");
 
-    if(good_vec_res.has_value())
+    if(good_vec_res)
     {
         std::vector good_vec = good_vec_res.value();
     }
     
-    if(!bad_vec_res.has_value())
+    if(!bad_vec_res)
     {
         std::println("Error: {}", bad_vec_res.error());
         // output:   "Error: from: "try_parse_vec", kind: "ParseError", args: "XXX, YYY, ?!+"
@@ -62,7 +62,7 @@ int main(int argc, const char* argv [])
 }
 ```
 By default, if a line cannot be parsed (*ie* in this example, if they do not contain a `=>`), it will cause the reader to return 
-an `ReaderError` whos field `args` contains the line at fault. This can be overriden by setting the reading mode to Permissive: `ParameterReader::build(file_name, "=>", mode::Permissive)`. The line at fault will then simply be ignored.
+a `ReaderError` whose field `args` contains the line at fault. This can be overriden by setting the reading mode to Permissive: `ParameterReader::build(file_name, "=>", mode::Permissive)`. The line at fault will then simply be ignored.
 
 Moreover, if all the parameters are needed for a process to run, we can exit the program & print the errors to the console at parsing failures.
 This can even be written in a single "functional programming" kind of style:
