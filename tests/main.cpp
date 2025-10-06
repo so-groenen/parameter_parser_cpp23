@@ -145,7 +145,7 @@ TEST_F(ReaderTest, StringTests)
 
 TEST_F(ReaderTest, StringTestsErrorHandled) 
 {
-    ASSERT_FALSE(none_str.has_value()) << "No string should not be here!";
+    ASSERT_FALSE(none_str.has_value()) << "No string should be here!";
 
     EXPECT_EQ(none_str.error().from, ReaderError::From::try_parse_str);
     EXPECT_EQ(none_str.error().kind, ReaderError::Kind::KeyError);

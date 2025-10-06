@@ -6,9 +6,9 @@ set(CMAKE_CXX_STANDARD 23)
 add_subdirectory(utilities)
 add_subdirectory(reader)
 
-if(TEST_EXAMPLE)
+if(ADD_EXAMPLE)
     message(STATUS "building test example")
-	add_subdirectory(test_example)
+	add_subdirectory(example)
 endif()
 
 if(ENABLE_TESTING)

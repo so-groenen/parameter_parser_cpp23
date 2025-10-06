@@ -29,7 +29,11 @@ namespace parameter_parser::reader
     using utilities::try_parse_vec;
     using namespace std::string_view_literals;
 
-
+    enum class Mode
+    {
+        Permissive,
+        Strict,
+    };
     auto exit_if_err(ReaderError&& error) -> ReaderError 
     {
         std::println("{}", error);
@@ -45,21 +49,21 @@ namespace parameter_parser::reader
             : m_map{map} // call the unordered_map move constructor
         {   
         }
-    public:
-        enum Mode
-        {
-            Strict,
-            Permissive
-        };
+    // public:
+    //     enum Mode
+    //     {
+    //         Permissive,
+    //         Strict,
+    //     };
     private:
-        static auto build_from_ifstream(std::ifstream& parameter_file, str_v delimiter, Mode mode = Strict) -> std::expected<ParameterReader, ReaderError>
+        static auto build_from_ifstream(std::ifstream& parameter_file, str_v delimiter, Mode mode) -> std::expected<ParameterReader, ReaderError>
         {
             std::unordered_map<std::string, std::string> parameter_map{};
             std::string buffer{};
             while (std::getline(parameter_file, buffer))
             {
                 auto key_val = split_once(buffer, delimiter);
-                if (!key_val.has_value() && mode == Strict)
+                if (!key_val.has_value() && mode == Mode::Strict)
                 {
                     ReaderError error{.args = buffer, .from = ReaderError::From::build, .kind = ReaderError::Kind::ParseError};
                     return std::unexpected(error);
@@ -75,7 +79,7 @@ namespace parameter_parser::reader
         }
 
     public:
-        static auto build(const char* file_path, str_v delimiter, Mode mode = Strict) -> std::expected<ParameterReader, ReaderError>
+        static auto build(const char* file_path, str_v delimiter, Mode mode = Mode::Strict) -> std::expected<ParameterReader, ReaderError>
         {
             std::ifstream parameter_file{file_path};
             if (!parameter_file.is_open())
@@ -87,7 +91,7 @@ namespace parameter_parser::reader
 
             return build_from_ifstream(parameter_file,delimiter, mode);
         }
-        static auto build(const std::string& file_path, str_v delimiter, Mode mode = Strict) -> std::expected<ParameterReader, ReaderError>
+        static auto build(const std::string& file_path, str_v delimiter, Mode mode = Mode::Strict) -> std::expected<ParameterReader, ReaderError>
         {
             std::ifstream parameter_file{file_path};
             if (!parameter_file.is_open())
