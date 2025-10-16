@@ -17,7 +17,7 @@ over json is the norm (for example theoretical physics).<br>
 No exceptions are thrown, only `std::expected<T,Errors>` are returned!  
 ## Usage
 
-Consider the following `parameters.txt` that we want to parse into `std::vector`s, float, etc:
+Consider the following `parameters.txt` that we want to parse into `std::vector`, float, etc:
 ```
 good_vector => 1.0, 1.1, 1.2, 1.3, 1.4, 1.5,  1.6, 1.7,  1.8, 1.9
 bad_vector  => 1.0, 1.1, 1.2, XXX, 1.4, YYY, 1.6,  ?!+, 1.8, 1.9
@@ -69,7 +69,7 @@ int main(int argc, const char* argv []){
     }
 
     double my_double = double_res.value_or(0.0);         // Ok: 3.14159265359
-    double my_float  = bad_float_res.value_or(0.0f);     // Error: will output 0
+    float my_float   = bad_float_res.value_or(0.0f);     // Error: will output 0
     // etc...
 }
 ```
