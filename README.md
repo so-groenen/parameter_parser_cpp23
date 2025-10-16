@@ -83,14 +83,14 @@ More "functional programming" techniques to handle the results/errors can be fou
 
 ## Parse or exit
 
-Often times in scientific computations, all parameters are crucial and the process can no longer continue if a single one is missing.<br>
+Often times in scientific computations, all parameters are crucial, and the process can no longer continue if a single one is missing.<br>
 The `parse_or_exit` methods does exactly that: parse, otherwise exits the program & output the culprit to the console:
 ```c++
     int32_t my_double        = parameters.parse_num_or_exit<double>("my_double");
     uint64_t the_answer      = parameters.parse_num_or_exit<uint64_t>("the answer");
     std::vector count_vec    = parameters.parse_vector_or_exit<int>("counting", "AND");
     float bad_float          = parameters.parse_num_or_exit<float>("bad_float");
-    // Will Output: Exiting with ParameterParserError: from: "parse_num_or_exit", kind: "ParseError", args: "meow"
+    //output: Exiting with ParameterParserError: from: "parse_num_or_exit", kind: "ParseError", args: "meow"
 ```
 ## Using the lib
 
