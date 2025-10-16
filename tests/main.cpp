@@ -117,10 +117,10 @@ TEST_F(ReaderTest, ParsingVectorsErrorsHandled)
 TEST_F(ReaderTest, ParsingVectorsExitHandled) 
 {
     EXPECT_DEATH(reader->parse_vector_or_exit<float>("non-existing vector", ","),
-                "Exiting with ReaderError: from: .*, kind: .*, args: .*");
+                "Exiting with ParameterParserError: from: .*, kind: .*, args: .*");
 
     EXPECT_DEATH(reader->parse_vector_or_exit<float>("bad_vector", ","),
-                "Exiting with ReaderError: from: .*, kind: .*, args: .*");
+                "Exiting with ParameterParserError: from: .*, kind: .*, args: .*");
 }
 
 TEST_F(ReaderTest, ParsingNums) 
@@ -150,10 +150,10 @@ TEST_F(ReaderTest, ParsingNumsExitHandled)
 {  
 
     EXPECT_DEATH(reader->parse_num_or_exit<float>("non-existing float"),
-                "Exiting with ReaderError: from: .*, kind: .*, args: .*");
+                "Exiting with ParameterParserError: from: .*, kind: .*, args: .*");
 
     EXPECT_DEATH(reader->parse_num_or_exit<float>("my_bad_float"),
-                "Exiting with ReaderError: from: .*, kind: .*, args: .*");
+                "Exiting with ParameterParserError: from: .*, kind: .*, args: .*");
 }
 
 TEST_F(ReaderTest, StringTests) 
@@ -174,5 +174,5 @@ TEST_F(ReaderTest, StringTestsErrorHandled)
 TEST_F(ReaderTest, StringExitHandled) 
 {  
     EXPECT_DEATH(reader->get_str_or_exit("non-existing str"),
-                "Exiting with ReaderError: from: .*, kind: .*, args: .*");
+                "Exiting with ParameterParserError: from: .*, kind: .*, args: .*");
 }

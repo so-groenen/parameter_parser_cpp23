@@ -36,7 +36,8 @@ namespace parameter_parser::reader
     };
     auto exit_if_err(ReaderError&& error) -> ReaderError 
     {
-        std::cerr << "Exiting with ReaderError: " << error;
+        error.from = parameter_parser::map_try_parse_to_parse_or_exit(error.from);
+        std::cerr << "Exiting with ParameterParserError: " << error;
         exit(EXIT_FAILURE);
         return error;
     }
@@ -46,7 +47,7 @@ namespace parameter_parser::reader
         ParameterMap m_map{};
         std::string m_buffer{};
         ParameterReader(ParameterMap&& map)
-            : m_map{map} // call the unordered_map move constructor
+            : m_map{std::move(map)} // call the unordered_map move constructor
         {   
         }
     private:
@@ -93,7 +94,16 @@ namespace parameter_parser::reader
             }
             return build_from_ifstream(parameter_file,delimiter, mode);
         }
-
+        static auto build(str_v file_path, str_v delimiter, Mode mode = Mode::Strict) -> std::expected<ParameterReader, ReaderError>
+        {
+            std::ifstream parameter_file{file_path.data()};
+            if (!parameter_file.is_open())
+            {
+                ReaderError error{.args = std::string{file_path}, .from = ReaderError::From::build, .kind = ReaderError::Kind::FileError};
+                return std::unexpected(error);
+            }
+            return build_from_ifstream(parameter_file,delimiter, mode);
+        }
 
         template<typename T>
         auto try_parse_num(str_v key) -> std::expected<T, ReaderError>

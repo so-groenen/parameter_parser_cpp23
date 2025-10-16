@@ -18,8 +18,8 @@ int main(int argc, const char* argv [])
 {
     using namespace parameter_parser::reader;
     using namespace parameter_parser;
-    const char* file_name = "parameters.txt";
-    auto reader           = ParameterReader::build(file_name, "=>");
+    std::string_view file_name {"parameters.txt"};
+    auto reader                = ParameterReader::build(file_name, "=>");
     if (!reader)
     {
         std::println("Could not build reader: {}", reader.error());
@@ -39,12 +39,9 @@ int main(int argc, const char* argv [])
     auto not_exist_res   = parameters.try_parse_vector<float>("non-existing vector", ",");
     auto my_double_res   = parameters.try_parse_num<double>("my_double");
     auto none_float      = parameters.try_parse_num<float>("non-existing float");
-    // auto my_bad_float    = parameters.try_parse_num<float>("my_bad_float");
+    auto my_bad_float    = parameters.try_parse_num<float>("my_bad_float");
     auto none_str        = parameters.try_get_str("non-existing str");
-    auto my_bad_float    = parameters.parse_num_or_exit<float>("my_bad_float");
-
-
-
+    auto x = my_double_res.value_or(0.0);
     std::println("*** Parsing vecs:");
         assert(good_vec_res.has_value());
         auto vec = std::vector{1.0f, 1.1f, 1.2f, 1.3f, 1.4f, 1.5f, 1.6f, 1.7f, 1.8f, 1.9f};
@@ -64,9 +61,9 @@ int main(int argc, const char* argv [])
 
     std::println("Expected errors:");
         assert(!none_float.has_value());
-        // assert(!my_bad_float.has_value());
+        assert(!my_bad_float.has_value());
         print_result(none_float);
-        // print_result(my_bad_float);
+        print_result(my_bad_float);
 
     std::println("*** Parsing strings:");
         assert(!none_str.has_value());

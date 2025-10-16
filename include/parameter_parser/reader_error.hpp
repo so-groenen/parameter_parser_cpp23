@@ -21,6 +21,9 @@ namespace parameter_parser
             try_parse_num,
             try_parse_vec,
             try_parse_str,
+            parse_num_or_exit,
+            parse_vec_or_exit,
+            parse_str_or_exit,
             build,
         };
         static std::string_view kind_as_str(Kind kind_)
@@ -49,6 +52,12 @@ namespace parameter_parser
                 return "try_parse_vec";
             case From::try_parse_str:
                 return "try_parse_str";
+            case From::parse_num_or_exit:
+                return "parse_num_or_exit";
+            case From::parse_vec_or_exit:
+                return "parse_vec_or_exit";
+            case From::parse_str_or_exit:
+                return "parse_str_or_exit";
             default:
                 return "";
             }
@@ -66,6 +75,21 @@ namespace parameter_parser
         From from{};
         Kind kind{};
     };
+    ReaderError::From map_try_parse_to_parse_or_exit(ReaderError::From from)
+    {
+        switch (from)
+        {
+            case ReaderError::From::try_parse_num:
+                return ReaderError::From::parse_num_or_exit;
+            case ReaderError::From::try_parse_vec:
+                return ReaderError::From::parse_vec_or_exit;
+            case ReaderError::From::try_parse_str:
+                return ReaderError::From::parse_str_or_exit;
+            default:
+                return from;
+        }
+
+    }
 }
 
 

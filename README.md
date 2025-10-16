@@ -1,14 +1,17 @@
-# Basic & modern parameter parser for C++ 
-Basic file parser to easily pass down parameters to C++ applications.<br>
-To be used for example for scientific computations. 
-This works nicely in conjunction with [Python Simulation Manager](https://github.com/so-groenen/python_simulation_manager) to control, from a Python notebook, high-performance calculations in C++23.<br> 
-This can be a "light-weight" alternative for people (for ex physicist) who prefer working with .txt rather than json or yaml.
-TODO: Add DMRG example.<br>
-
+### WORK IN PROGRESS
+# Basic raw text parser for modern C++
+Basic raw text parser to easily parse parameters in C++ applications.<br>
+To be used for example in scientific computations. 
+This works nicely in conjunction with [Python Simulation Manager](https://github.com/so-groenen/python_simulation_manager) to control, from a Python notebook, scientific calculations and simulations in modern C++. 
+This can be a "light-weight" alternative for people working in fields where using raw text formats 
+over json is the norm (for example theoretical physics).<br>
+### Requires
+* C++23 compiler with support for `std::ranges`/`std::expected`/concepts.
 ## Features
-* Basic utility to "map" text lines into  unordered maps as key-value paris, and parse values as integral/floating point types, as well as `std::vectors` or strings.
+* Basic utility to map raw text lines into unordered maps as key-value pairs
+* Parses int/floating point types, as well as `std::vector`s.
 * Packaging using CMake for easy installation. Can be used with the CMake `find_package` function.<br>
-* Uses modern C++20/23 features: `std::ranges`/`std::views`, concepts, `std::println`, `std::expected` etc...
+* Uses modern C++20/23 features like `std::ranges`/`std::views`, concepts, `std::println`, `std::expected` etc...
 * Unit tests using GoogleTest & CTest
 
 No exceptions are thrown, only `std::expected<T,Errors>` are returned!  
@@ -24,7 +27,7 @@ my_double   => 3.14159265359
 the answer  => 42
 bad_float  => meow
 ```
-The ists of numbers can be polluted, have uneven spaces etc... <br>
+The lists of numbers can also have uneven spaces. <br>
 We can parse the text as follows:
 ```c++
 #include "parameter_parser/reader.hpp"
@@ -34,8 +37,9 @@ using parameter_parser::reader::ParameterReader;
 
 int main(int argc, const char* argv []){
 
-    const char* file_name = "parameters.txt";
-    auto reader           = ParameterReader::build(file_name, "=>");
+    std::string_view file_name{"parameters.txt"};
+    
+    auto reader = ParameterReader::build(file_name, "=>");
     if (!reader){
         std::println("Could not build reader: {}", reader.error());
         return EXIT_FAILURE;
@@ -43,12 +47,12 @@ int main(int argc, const char* argv []){
 
     auto parameters      = reader.value();
     auto good_vec_res    = parameters.try_parse_vector<float>("good_vector", ",");
-    auto bad_vec_res     = parameters.try_parse_vector<double>("bad_vector", ",");
+    auto bad_vec_res     = parameters.try_parse_vector<float>("bad_vector", ",");
     auto double_res      = parameters.try_parse_num<double>("my_double");
     auto bad_float_res   = parameters.try_parse_num<float>("my_bad_float");
     auto hello_world_res = parameters.try_get_str("my_str");
 
-    std::vector good_vec{};
+    std::vector<float> good_vec{};
     if(good_vec_res){
         good_vec = std::move(good_vec_res.value());      //OK!!
     }
@@ -56,47 +60,41 @@ int main(int argc, const char* argv []){
         std::println("Error: {}", good_vec_res.error());
     }
 
-    std::vector bad_vec{};
+    std::vector<float> bad_vec{};
     if(bad_vec){
-        bad_vec = std::move(bad_vec_res.value());      //Parsing Error "handled" in else branch:
+        bad_vec = std::move(bad_vec_res.value());       //Parsing Error "handled" in "else" branch:
     }
-    else{
-        std::println("Error: {}", bad_vec_res.error());
-        // output:   "Error: from: "try_parse_vec", kind: "ParseError", args: "XXX, YYY, ?!+"
-    }
-
-    
-    if(!bad_vec_res)
-    {
-        std::println("Error: {}", bad_vec_res.error());
+    else{                                               //output:
+        std::println("Error: {}", bad_vec_res.error()); //"Error: from: "try_parse_vec", kind: "ParseError", args: "XXX, YYY, ?!+"
     }
 
+    double my_double = double_res.value_or(0.0);         // Ok: 3.14159265359
+    double my_float  = bad_float_res.value_or(0.0f);     // Error: will output 0
     // etc...
 }
 ```
-By default, if a line cannot be parsed (*ie* in this example, if they do not contain a `=>`), it will cause the reader to return 
-a `ReaderError` whose field `args` contains the line at fault. This can be overriden by setting the reading mode to Permissive: `ParameterReader::build(file_name, "=>", mode::Permissive)`. The line at fault will then simply be ignored.
-## Parsing without error checking
+By default, if a line cannot be parsed (*ie* in this example, if a line does not contain a `=>`), it will cause the reader to return 
+a `ReaderError` whose field `args` contains the line at fault. This can be overriden by setting the reading mode to Permissive:
+```c++
+auto reader = ParameterReader::build(file_name, "=>");
+```
+The line at fault will then simply be ignored.<br>
+More "functional programming" techniques to handle the results/errors can be found here: [in this article](https://www.cppstories.com/2024/expected-cpp23-monadic/).
 
-Moreover, if all the parameters are needed for a process to run, we can exit the program & print the errors to the console at parsing failures.
-This can even be written in a single "functional programming" kind of style:
+## Parse or exit
+
+Often times in scientific computations, all parameters are crucial and the process can no longer continue if a single one is missing.<br>
+The `parse_or_exit` methods does exactly that: parse, otherwise exits the program & output the culprit to the console:
 ```c++
     int32_t my_double        = parameters.parse_num_or_exit<double>("my_double");
     uint64_t the_answer      = parameters.parse_num_or_exit<uint64_t>("the answer");
     std::vector count_vec    = parameters.parse_vector_or_exit<int>("counting", "AND");
     float bad_float          = parameters.parse_num_or_exit<float>("bad_float");
-    // Will Output: Exiting with ReaderError: from: "try_parse_num", kind: "ParseError", args: "meow"
-```
-
-The last line is essentially "syntactic sugar" for.
-```c++
-    using parameter_parser::reader::exit_if_err;
-
-    std::vector count_vec = parameters.try_parse_vector<int>("counting", "AND").transform_error(exit_if_err).value();
+    // Will Output: Exiting with ParameterParserError: from: "parse_num_or_exit", kind: "ParseError", args: "meow"
 ```
 ## Using the lib
 
-The easiest way is to use CMake's *FetchContent* function. For example, you may add the following lines in your CMake project to link to the library:
+The easiest way is to use CMake's *FetchContent* function. For example, you may add the following lines to your CMake project to link to the library:
 
 ```cmake
 include(FetchContent)
@@ -114,4 +112,4 @@ target_link_libraries(${PROJECT_NAME} PRIVATE parameter_parser::parameter_parser
 ```
 ## Tests
 
-Tests testing the basic functionalities using CTest/Google test are also provided. Either Use `-DENABLE_TESTING=ON` when building in the commandline, or use the `set(ENABLE_TESTING ON CACHE INTERNAL "")` just before the call to `FetchContent_MakeAvailable`.
+The basic functionalities are "unit tested" using CTest/Google tests which are provided. Either Use `-DENABLE_TESTING=ON` when building in the commandline, or use the `set(ENABLE_TESTING ON CACHE INTERNAL "")` just before the call to `FetchContent_MakeAvailable`.
