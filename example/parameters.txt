@@ -1,7 +1,7 @@
+my_int  => 42
+int64_vector => 1 and 2  and 3 and 4 and 5 and  6 and 7 and 8
+my_str   => hello world
 good_vector => 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9
-int64_vector => 1 and 2 and 3 and 4 and 5 and 6 and 7 and 8
 bad_vector => 1.0, 1.1, 1.2, XXX, 1.4, YYY, 1.6, ?!+, 1.8, 1.9
-my_str  => hello world
 my_double => 3.14159265359
-my_int => 42
 my_bad_float => meow

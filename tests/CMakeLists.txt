@@ -16,7 +16,7 @@ enable_testing()
 
 add_executable(parameter_parser_tests main.cpp)
 
-target_link_libraries     (parameter_parser_tests GTest::gtest_main parameter_parser::reader parameter_parser::utilities)
+target_link_libraries     (parameter_parser_tests GTest::gtest_main parameter_parser::parameter_parser)
 target_include_directories(parameter_parser_tests PRIVATE include)
 target_compile_features   (parameter_parser_tests PRIVATE cxx_std_23)
 

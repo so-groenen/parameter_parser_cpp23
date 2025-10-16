@@ -1,2 +1,0 @@
-include(${CMAKE_CURRENT_LIST_DIR}/parameter_parser-reader-config-version.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/parameter_parser-reader-targets.cmake)

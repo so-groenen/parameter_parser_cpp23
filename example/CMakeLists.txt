@@ -10,6 +10,13 @@ add_custom_command(
                 $<TARGET_FILE_DIR:example>/parameters.txt)
 
 target_include_directories(example PRIVATE include)
-target_link_libraries     (example PRIVATE parameter_parser::utilities parameter_parser::reader)
+target_link_libraries     (example PRIVATE parameter_parser::parameter_parser)
 target_compile_features   (example PRIVATE cxx_std_23)
+
+
+if(WIN32 AND (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang"))
+    message(STATUS "Using GNU on Windows: linking with stdc++exp")
+    target_link_libraries (example PRIVATE stdc++exp)
+endif()
+
 

@@ -49,12 +49,6 @@ namespace parameter_parser::reader
             : m_map{map} // call the unordered_map move constructor
         {   
         }
-    // public:
-    //     enum Mode
-    //     {
-    //         Permissive,
-    //         Strict,
-    //     };
     private:
         static auto build_from_ifstream(std::ifstream& parameter_file, str_v delimiter, Mode mode) -> std::expected<ParameterReader, ReaderError>
         {
@@ -67,7 +61,6 @@ namespace parameter_parser::reader
                 {
                     ReaderError error{.args = buffer, .from = ReaderError::From::build, .kind = ReaderError::Kind::ParseError};
                     return std::unexpected(error);
-                    // return std::unexpected(std::format(">> ParameterError::ParsingFail at line \"{}\"", buffer));
                 }
                 else if (key_val.has_value())
                 {
@@ -86,7 +79,6 @@ namespace parameter_parser::reader
             {
                 ReaderError error{.args = file_path, .from = ReaderError::From::build, .kind = ReaderError::Kind::FileError};
                 return std::unexpected(error);
-                // return std::unexpected(">> ParameterError::FileError Could not open file\n");  
             }
 
             return build_from_ifstream(parameter_file,delimiter, mode);
@@ -98,7 +90,6 @@ namespace parameter_parser::reader
             {
                 ReaderError error{.args = file_path, .from = ReaderError::From::build, .kind = ReaderError::Kind::FileError};
                 return std::unexpected(error);
-                // return std::unexpected(">> ParameterError::FileError Could not open file\n");  
             }
             return build_from_ifstream(parameter_file,delimiter, mode);
         }
@@ -113,7 +104,6 @@ namespace parameter_parser::reader
             {
                 ReaderError error{.args = m_buffer, .from = ReaderError::From::try_parse_num, .kind = ReaderError::Kind::KeyError};
                 return std::unexpected(error);
-                // return std::unexpected(std::format(">> try_parse_num::Error: Could not find key \"{}\"", m_buffer));
             }
             const auto& value = m_map.at(m_buffer);
             auto result       = parse_num_handled<T>(value);
@@ -121,7 +111,6 @@ namespace parameter_parser::reader
             {
                 ReaderError error{.args = std::string{result.error()}, .from = ReaderError::From::try_parse_num, .kind = ReaderError::Kind::ParseError};
                 return std::unexpected(error);
-                // return std::unexpected(std::format(">> try_parse_num::Error: Could not parse \"{}\"", result.error()));
             }
 
             return result.value();
@@ -142,13 +131,11 @@ template<typename T>
             {
                 ReaderError error{.args = m_buffer, .from = ReaderError::From::try_parse_vec, .kind = ReaderError::Kind::KeyError};
                 return std::unexpected(error);
-                // return std::unexpected(std::format(">> try_parse_vec::Error Could not find key \"{}\"", m_buffer));
             }
             const auto& value = m_map.at(m_buffer);
             auto result       = try_parse_vec<T>(value, delim).transform_error([](std::string error)
             {
                 ReaderError read_error{.args = error, .from = ReaderError::From::try_parse_vec, .kind = ReaderError::Kind::ParseError};
-                // auto new_error = std::format(">> try_parse_vec::Error Could not parse following tokens: \"{}\"", error);
                 return read_error;
             });
             return result;
@@ -166,7 +153,6 @@ template<typename T>
             {
                 ReaderError error{.args = m_buffer, .from = ReaderError::From::try_parse_str, .kind = ReaderError::Kind::KeyError};
                 return std::unexpected(error);
-                // return std::unexpected(std::format(">> try_parse_str::Error: Could not find key \"{}\"", m_buffer));
             }
             return m_map.at(m_buffer);
         }

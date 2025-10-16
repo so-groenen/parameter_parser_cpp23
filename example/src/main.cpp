@@ -25,7 +25,6 @@ int main(int argc, const char* argv [])
         std::println("Could not build reader: {}", reader.error());
         return EXIT_FAILURE;
     }
-    assert(reader.has_value());
     std::println("-> assertions passed");
     auto parameters      = reader.value();
 
@@ -40,9 +39,10 @@ int main(int argc, const char* argv [])
     auto not_exist_res   = parameters.try_parse_vector<float>("non-existing vector", ",");
     auto my_double_res   = parameters.try_parse_num<double>("my_double");
     auto none_float      = parameters.try_parse_num<float>("non-existing float");
-    auto my_bad_float    = parameters.try_parse_num<float>("my_bad_float");
+    // auto my_bad_float    = parameters.try_parse_num<float>("my_bad_float");
     auto none_str        = parameters.try_get_str("non-existing str");
-    
+    auto my_bad_float    = parameters.parse_num_or_exit<float>("my_bad_float");
+
 
 
     std::println("*** Parsing vecs:");
@@ -64,9 +64,9 @@ int main(int argc, const char* argv [])
 
     std::println("Expected errors:");
         assert(!none_float.has_value());
-        assert(!my_bad_float.has_value());
+        // assert(!my_bad_float.has_value());
         print_result(none_float);
-        print_result(my_bad_float);
+        // print_result(my_bad_float);
 
     std::println("*** Parsing strings:");
         assert(!none_str.has_value());

@@ -116,13 +116,9 @@ TEST_F(ReaderTest, ParsingVectorsErrorsHandled)
 
 TEST_F(ReaderTest, ParsingVectorsExitHandled) 
 {
-    // std::string s1  = "Exiting with ReaderError: from: .*, kind: .*, args: .*";
-    // const auto& s1_ = s1;
     EXPECT_DEATH(reader->parse_vector_or_exit<float>("non-existing vector", ","),
                 "Exiting with ReaderError: from: .*, kind: .*, args: .*");
 
-    // std::string s2  = "Exiting with ReaderError: from: \"try_parse_vec\", kind: \"ParseError\", args: \"bad_vector\"";
-    // const auto& s2_ = s2;
     EXPECT_DEATH(reader->parse_vector_or_exit<float>("bad_vector", ","),
                 "Exiting with ReaderError: from: .*, kind: .*, args: .*");
 }
