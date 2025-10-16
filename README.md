@@ -9,7 +9,7 @@ over json is the norm (for example theoretical physics).<br>
 * C++23 compiler with support for `std::ranges`/`std::expected`/concepts.
 ## Features
 * Basic utility to map raw text lines into unordered maps as key-value pairs
-* Parses int/floating point types, as well as `std::vector`s.
+* Parses int/floating point types, as well as `std::vector`.
 * Packaging using CMake for easy installation. Can be used with the CMake `find_package` function.<br>
 * Uses modern C++20/23 features like `std::ranges`/`std::views`, concepts, `std::println`, `std::expected` etc...
 * Unit tests using GoogleTest & CTest
