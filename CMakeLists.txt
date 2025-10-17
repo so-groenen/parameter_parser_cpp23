@@ -23,8 +23,8 @@ include(GNUInstallDirs)
 
 target_include_directories(parameter_parser
                            INTERFACE
-                           $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-                           $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+                           $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+                           $<INSTALL_INTERFACE:include>
 )
 
 install(TARGETS parameter_parser
@@ -58,4 +58,5 @@ write_basic_package_version_file("${CMAKE_BINARY_DIR}/${PROJECT_NAME}-config-ver
 
 install(FILES
         "${CMAKE_BINARY_DIR}/${PROJECT_NAME}-config.cmake"
+        "${CMAKE_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake"
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/parameter_parser)
