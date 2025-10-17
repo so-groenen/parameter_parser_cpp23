@@ -101,7 +101,7 @@ include(FetchContent)
 FetchContent_Declare(
     parameter_parser
     GIT_REPOSITORY https://github.com/so-groenen/parameter_parser_cpp23.git
-    GIT_TAG origin/master
+    GIT_TAG main
 )
 set(ENABLE_TESTING OFF CACHE INTERNAL "") # Replace with "ON" to enable testing! 
 set(ADD_EXAMPLE    OFF CACHE INTERNAL "") # Replace with "ON" to add example! 

@@ -18,6 +18,9 @@ endif()
 add_library(parameter_parser INTERFACE)
 add_library(parameter_parser::parameter_parser ALIAS parameter_parser)
 
+
+include(GNUInstallDirs)
+
 target_include_directories(parameter_parser
                            INTERFACE
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -32,14 +35,13 @@ install(TARGETS parameter_parser
         INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
 
-include(GNUInstallDirs)
 
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include
         DESTINATION ${CMAKE_INSTALL_PREFIX})
 
 
 install(EXPORT parameter_parser-targets
-        FILE "parameter_parser-targets.cmake"
+        FILE parameter_parser-targets.cmake
         NAMESPACE parameter_parser::
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/parameter_parser
 )
